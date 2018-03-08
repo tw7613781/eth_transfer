@@ -1,0 +1,26 @@
+{
+  "name": "hycon.io.eth",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "./node_modules/.bin/node-ts src/main.js/",
+    "lint": "./node_modules/.bin/tslilnt src/main.js/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/glosfer/hycon.io.eth.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/glosfer/hycon.io.eth",
+  "devDependencies": {
+    "node-ts": "^2.1.2",
+    "tslint": "^5.9.1",
+    "web3-typescript-typings": "^0.10.0"
+  },
+  "dependencies": {
+    "mysql": "^2.15.0",
+    "web3": "https://github.com/ethereum/web3.js.git"
+  }
+}
