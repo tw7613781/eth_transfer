@@ -1,16 +1,12 @@
 import * as Web3 from "web3"
 import { BigNumber } from 'bignumber.js'
 import https = require("https")
+import { dbConfig } from './dbConfig'
 import * as mysql from "mysql"
 
 
 let web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
-let db = mysql.createConnection({
-    host: 'localhost',
-    user: 'infinity',
-    password: 'wGt#X%d13t!!daoS%6pytOP8J75PLIAP',
-    database: 'infinity'
-});
+let db = mysql.createConnection(dbConfig);
 
 let txInsertCount = 0
 function insertTx(txid: string, address: string, amount: BigNumber | Number, time: Date) {
