@@ -15,13 +15,13 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/glosfer/hycon.io.eth",
   "devDependencies": {
+    "@types/mysql": "^2.15.3",
     "ts-node": "^5.0.1",
     "tslint": "^5.9.1",
     "typescript": "^2.7.2",
     "web3-typescript-typings": "^0.10.0"
   },
   "dependencies": {
-    "@types/mysql": "^2.15.3",
     "mysql": "^2.15.0",
     "web3": "git+https://github.com/ethereum/web3.js.git"
   }
