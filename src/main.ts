@@ -35,11 +35,38 @@ function insertCoinPrices(coins: Coin[]): void {
 
 }
 
+let addresses: string[]
+async function getAddresses() {
+    addresses = []
+    let sql = "SELECT `address_eth` FROM `whitelist`;"
+    console.log(1)
+    let results: any[] = await new Promise<any[]>((resolve, reject) => {
+        db.query(sql, [], (error, results, fields) => {
+            if (error) {
+                console.log("Could not get addresses from whitelist")
+                console.log(error)
+                reject(error)
+            }
+            resolve(results)
+        })
+    })
+    console.log(2)
+    for (let result of results) {
+        console.log(result)
+        let address: string = result.address_eth
+        if (!address) {
+            console.log(`Skipping`)
+            continue
+        }
+        addresses.push(address.toLowerCase())
+    }
+
+    console.log(`Got ${addresses.length} addresses from the database`)
+    return Promise.resolve()
+}
 
 
-let addresses = ["0x390dE26d772D2e2005C6d1d24afC902bae37a4bB", "0xFBb1b73C4f0BDa4f67dcA266ce6Ef42f520fBB98"]
 async function main() {
-    addresses = addresses.map((str) => str.toLowerCase())
     await new Promise((resolve, reject) => {
         db.connect((err) => {
             if (err) {
@@ -54,10 +81,15 @@ async function main() {
     if (!web3.isConnected()) {
         throw new Error("Could not connect");
     }
-
     console.log(`Connected successfully to '${web3.version.node}'`)
 
-    web3.eth.getSyncing(printSync)
+
+    await getAddresses()
+    setImmediate(fetchCoinPrices)
+
+    setInterval(() => web3.eth.getBlockNumber(blockPoll), 1000)
+    setInterval(() => fetchCoinPrices(), 60000)
+    // web3.eth.getSyncing(printSync)
 }
 
 let lastBlockNumber: number;
@@ -97,11 +129,6 @@ function printSync(err: Error, res: Web3.SyncingResult) {
     if (res === false) {
         console.log(`Sync complete`)
         clearInterval(printTimerId)
-
-        setImmediate(fetchCoinPrices)
-
-        setInterval(() => web3.eth.getBlockNumber(blockPoll), 1000)
-        setInterval(() => fetchCoinPrices(), 60000)
     } else {
         if (printTimerId === undefined) {
             setInterval(() => web3.eth.getSyncing(printSync), 1000)

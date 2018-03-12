@@ -56,7 +56,7 @@ async function main() {
 
 function addAddress(idx: number, address: string) {
     let sql = "UPDATE `whitelist` set `address_eth` = ? where `idx` = ?;"
-    let q = db.query(sql, [idx, address.toString()], (error, results, fields) => {
+    let q = db.query(sql, [address.toString(), idx], (error, results, fields) => {
         if (error) {
             console.log(`Failed to give address '${address}' to ${idx}: ${error}`)
         } else {
