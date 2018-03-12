@@ -1,5 +1,6 @@
 import * as Web3 from "web3"
-import { BigNumber } from 'bignumber.js';
+import { BigNumber } from 'bignumber.js'
+import https = require("https")
 import * as mysql from "mysql"
 
 
@@ -20,6 +21,19 @@ function insertTx(txid: string, address: string, amount: BigNumber | Number, tim
         } else {
             // console.log(`Insert TXID ${txid}: ${address}, ${amount}`)
             txInsertCount++
+        }
+    })
+}
+
+function insertCoinPrices(coins: Coin[]): void {
+    if (coins.length != 3) {
+        throw new Error("Incorrect data or data format")
+    }
+
+    let sql = "INSERT INTO `spot_rates` (`bitcoin`,`ethereum`,`litecoin`) VALUES (?,?,?);"
+    db.query(sql, [coins[0].price_usd, coins[1].price_usd, coins[2].price_usd], (error, results, fields) => {
+        if (error) {
+            console.log(`Failed to insert Spot Rate at ${coins[0].time_stamp}`)
         }
     })
 
@@ -47,11 +61,7 @@ async function main() {
 
     console.log(`Connected successfully to '${web3.version.node}'`)
 
-
     web3.eth.getSyncing(printSync)
-
-    setInterval(() => web3.eth.getBlockNumber(blockPoll), 1000)
-
 }
 
 let lastBlockNumber: number;
@@ -91,12 +101,58 @@ function printSync(err: Error, res: Web3.SyncingResult) {
     if (res === false) {
         console.log(`Sync complete`)
         clearInterval(printTimerId)
+
+        setImmediate(fetchCoinPrices)
+
+        setInterval(() => web3.eth.getBlockNumber(blockPoll), 1000)
+        setInterval(() => fetchCoinPrices(), 60000)
     } else {
         if (printTimerId === undefined) {
             setInterval(() => web3.eth.getSyncing(printSync), 1000)
         }
         console.log(`Sync: ${res.currentBlock} / ${res.highestBlock} (${100 * res.currentBlock / res.highestBlock}%)`)
     }
+}
+
+
+type Coin = {
+    id: string
+    name: string
+    price_usd: number
+    time_stamp: number
+}
+
+const api_route = "api.coinmarketcap.com"
+function fetchCoinPrices() {
+    https.get({ host: api_route, path: "/v1/ticker/?limit=10", agent: false }, (res) => {
+        let data = ""
+
+        res.on("data", (chunk) => {
+            data += chunk
+        })
+
+        res.on("end", () => {
+            let coins: Coin[] = []
+            for (let coin of JSON.parse(data)) {
+                if (coin.id == 'bitcoin' || coin.id == 'ethereum' || coin.id == 'litecoin') {
+                    let timestamp = parseInt(coin.last_updated);
+                    let usd = parseFloat(coin.price_usd)
+                    coins.push({
+                        id: coin.id,
+                        name: coin.name,
+                        price_usd: usd,
+                        time_stamp: timestamp
+                    })
+                }
+            }
+            try {
+                insertCoinPrices(coins)
+            } catch (error) {
+                console.log(error)
+            }
+
+        })
+    })
 }
 
 
