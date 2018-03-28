@@ -29,7 +29,7 @@ function insertCoinPrices(coins: Coin[]): void {
     let sql = "INSERT INTO `spot_rates` (`bitcoin`,`ethereum`,`litecoin`) VALUES (?,?,?);"
     db.query(sql, [coins[0].price_usd, coins[1].price_usd, coins[2].price_usd], (error, results, fields) => {
         if (error) {
-            console.log(`Failed to insert Spot Rate at ${coins[0].time_stamp}`)
+            console.log(`Failed to insert Spot Rate at ${coins[0].time_stamp} values: ${coins[0].price_usd}, ${coins[1].price_usd}, ${coins[2].price_usd}`)
         }
     })
 
@@ -38,8 +38,7 @@ function insertCoinPrices(coins: Coin[]): void {
 let addresses: string[]
 async function getAddresses() {
     addresses = []
-    let sql = "SELECT `address_eth` FROM `whitelist`;"
-    console.log(1)
+    let sql = "SELECT `address_eth` FROM `ico_addresses`;"
     let results: any[] = await new Promise<any[]>((resolve, reject) => {
         db.query(sql, [], (error, results, fields) => {
             if (error) {
@@ -50,7 +49,6 @@ async function getAddresses() {
             resolve(results)
         })
     })
-    console.log(2)
     for (let result of results) {
         console.log(result)
         let address: string = result.address_eth
@@ -65,6 +63,26 @@ async function getAddresses() {
     return Promise.resolve()
 }
 
+async function checkForAddressChanges() {
+    let sql = "SELECT count(`address_eth`) as count FROM `ico_addresses`;"
+    let count: number = await new Promise<number>((resolve, reject) => {
+        db.query(sql, [], (error, results, fields) => {
+            if (error) {
+                console.log("Could not get row count from ico_addresses")
+                console.log(error)
+                reject(error)
+            }
+            resolve(results[0].count)
+        })
+    })
+
+    if (count != addresses.length) {
+        console.log(`DB has ${count} address, List has ${addresses.length}`)
+        getAddresses();
+    } else {
+        console.log("Addresses up to date")
+    }
+}
 
 async function main() {
     await new Promise((resolve, reject) => {
@@ -86,13 +104,13 @@ async function main() {
 
     await getAddresses()
     setImmediate(fetchCoinPrices)
-
+    setInterval(() => checkForAddressChanges(), 5000)
     setInterval(() => web3.eth.getBlockNumber(blockPoll), 1000)
     setInterval(() => fetchCoinPrices(), 60000)
     // web3.eth.getSyncing(printSync)
 }
 
-let lastBlockNumber: number;
+let lastBlockNumber: number;// = 5241290 - 5;
 let confirmations = 3;
 function blockPoll(err: Error, blockNumber: number) {
     if (err) {
@@ -115,7 +133,6 @@ function processBlock(number: number) {
         if (addresses.find((address) => tx.from == address || tx.to == address) !== undefined) {
             console.log(`TX# ${tx.from} -- ${web3.fromWei(tx.value, 'ether')} --> ${tx.to}`)
             setImmediate(insertTx, tx.hash, tx.from, web3.fromWei(tx.value, 'ether'), new Date(block.timestamp * 1000))
-
         }
     }
 }
