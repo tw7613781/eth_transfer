@@ -46,7 +46,7 @@ async function main() {
     })
     wallet.generateAddresses(count)
     console.log(`DB Contains ${count} addresses`)
-    let newAddresses = 5
+    let newAddresses = 50000
     let addresses = wallet.generateAddresses(newAddresses)
     console.log(`Generated ${addresses.length} addresses`)
     let idx = count

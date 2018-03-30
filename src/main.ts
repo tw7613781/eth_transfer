@@ -79,8 +79,6 @@ async function checkForAddressChanges() {
     if (count != addresses.length) {
         console.log(`DB has ${count} address, List has ${addresses.length}`)
         getAddresses();
-    } else {
-        console.log("Addresses up to date")
     }
 }
 
@@ -132,7 +130,7 @@ function processBlock(number: number) {
     for (let tx of block.transactions) {
         if (addresses.find((address) => tx.from == address || tx.to == address) !== undefined) {
             console.log(`TX# ${tx.from} -- ${web3.fromWei(tx.value, 'ether')} --> ${tx.to}`)
-            setImmediate(insertTx, tx.hash, tx.from, web3.fromWei(tx.value, 'ether'), new Date(block.timestamp * 1000))
+            setImmediate(insertTx, tx.hash, tx.to, web3.fromWei(tx.value, 'ether'), new Date(block.timestamp * 1000))
         }
     }
 }
