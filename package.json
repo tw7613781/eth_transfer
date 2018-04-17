@@ -6,7 +6,7 @@
   "scripts": {
     "start": "./node_modules/.bin/ts-node src/main.ts",
     "addr": "./node_modules/.bin/ts-node src/generateAddresses.ts",
-    "lint": "./node_modules/.bin/tslilnt src/main.ts"
+    "lint": "./node_modules/.bin/tslint src/main.ts"
   },
   "repository": {
     "type": "git",

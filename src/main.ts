@@ -6,6 +6,7 @@ import * as mysql from "mysql"
 
 
 let web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+
 let db = mysql.createConnection(dbConfig);
 
 let txInsertCount = 0
@@ -35,9 +36,9 @@ function insertCoinPrices(coins: Coin[]): void {
 
 }
 
-let addresses: string[]
+let addresses: Map<string,number>
 async function getAddresses() {
-    addresses = []
+    addresses = new Map()
     let sql = "SELECT `address_eth` FROM `ico_addresses`;"
     let results: any[] = await new Promise<any[]>((resolve, reject) => {
         db.query(sql, [], (error, results, fields) => {
@@ -49,6 +50,7 @@ async function getAddresses() {
             resolve(results)
         })
     })
+    let addrCount:number = 0
     for (let result of results) {
         console.log(result)
         let address: string = result.address_eth
@@ -56,10 +58,11 @@ async function getAddresses() {
             console.log(`Skipping`)
             continue
         }
-        addresses.push(address.toLowerCase())
+        addresses.set(address.toLowerCase(),addrCount)
+        addrCount++
     }
-
-    console.log(`Got ${addresses.length} addresses from the database`)
+    
+    console.log(`Got ${addresses.size} addresses from the database`)
     return Promise.resolve()
 }
 
@@ -76,8 +79,8 @@ async function checkForAddressChanges() {
         })
     })
 
-    if (count != addresses.length) {
-        console.log(`DB has ${count} address, List has ${addresses.length}`)
+    if (count != addresses.size) {
+        console.log(`DB has ${count} address, List has ${addresses.size}`)
         getAddresses();
     }
 }
@@ -95,7 +98,7 @@ async function main() {
     })
 
     if (!web3.isConnected()) {
-        throw new Error("Could not connect");
+        throw new Error("Could not connect web3");
     }
     console.log(`Connected successfully to '${web3.version.node}'`)
 
@@ -128,7 +131,7 @@ function processBlock(number: number) {
     let block = web3.eth.getBlock(number, true)
     console.log(`Block #${block.number}: ${block.hash} ${block.transactions.length}`)
     for (let tx of block.transactions) {
-        if (addresses.find((address) => tx.from == address || tx.to == address) !== undefined) {
+        if (addresses.has(tx.from) || addresses.has(tx.to)) {
             console.log(`TX# ${tx.from} -- ${web3.fromWei(tx.value, 'ether')} --> ${tx.to}`)
             setImmediate(insertTx, tx.hash, tx.to, web3.fromWei(tx.value, 'ether'), new Date(block.timestamp * 1000))
         }
@@ -196,5 +199,6 @@ function fetchCoinPrices() {
 
 
 main().catch((e) => {
+    console.log(e)
     db.end();
 })
