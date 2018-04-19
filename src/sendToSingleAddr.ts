@@ -1,16 +1,16 @@
 import { dbConfig } from './dbConfig'
 import * as mysql from "mysql"
-const { generateMnemonic, EthHdWallet } = require('eth-hd-wallet')
-const utils = require("ethereumjs-util")
 import * as Web3 from "web3"
 import { BigNumber } from 'bignumber.js';
 
+const hdkey = require('ethereumjs-wallet/hdkey')
+const utils = require("ethereumjs-util")
+const etheTx = require('ethereumjs-tx')
+const bip39 = require('bip39')
+
 let db = mysql.createConnection(dbConfig);
 let web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
-let toMem = "people volume drive live mesh shrug message pudding rain snow hip cloth"
-let toWallet = EthHdWallet.fromMnemonic(toMem)
-let sendMem = "maze ocean slab maximum sleep potato candy antique hammer parrot unable east"
-let sendWallet = EthHdWallet.fromMnemonic(sendMem)
+
 let timerId: NodeJS.Timer
 
 async function main() {
@@ -31,16 +31,11 @@ async function main() {
     console.log(`Connected successfully to '${web3.version.node}'`)
 
     await getAddresses()
+    
+    initWallet()
 
-    // const mem = generateMnemonic()
-    let toAddr = toWallet.generateAddresses(1)[0]
-    //initialize send wallet
-    sendWallet.generateAddresses(addresses.length)
-    console.log(`ToAddress is: ${toAddr}`)
-    //0xb4f4945a5af3472e5e7b0abdfbcdce5d54eb2a1b
-
-    timerId = setInterval(()=>{
-        requestBalanceAndSend(toAddr)
+    timerId = setInterval(() => {
+        requestBalanceAndSend()
     }, 1000)
 }
 
@@ -58,6 +53,7 @@ async function getAddresses() {
             resolve(results)
         })
     })
+    // let count=0
     for (let result of results) {
         let address: string = result.address_eth.toLowerCase()
         if (!address) {
@@ -65,59 +61,109 @@ async function getAddresses() {
             continue
         }
         addresses.push(address)
-        console.log(address)
+        // console.log(`${count}: ${address}`)
+        // count++
     }
     console.log(`Got ${addresses.length} addresses from the database`)
     return Promise.resolve()
 }
 
+let fromWallets: any[]
+let toWallet: any
+let toAddress: string
+function initWallet() {
+    //'from' wallets
+    fromWallets = []
+    const fromMEM = "maze ocean slab maximum sleep potato candy antique hammer parrot unable east"
+    const fromDeriveRoot = getDeriveRoot(fromMEM)
+    let i
+    for(i=0;i<addresses.length;i++){
+        fromWallets.push(fromDeriveRoot.deriveChild(i).getWallet())
+        // console.log(`${i}: ${utils.addHexPrefix(fromWallets[i].getAddress().toString('hex'))}`)
+    }
+    console.log(`made ${i} wallets`) 
+    //'to' wallet 
+    //const toMEM = bip39.generateMnemonic()
+    const toMEM = "people volume drive live mesh shrug message pudding rain snow hip cloth"
+    const toDeriveRoot = getDeriveRoot(toMEM)
+    toWallet = toDeriveRoot.deriveChild(0).getWallet()
+    toAddress = utils.addHexPrefix(toWallet.getAddress().toString('hex'))
+    console.log(`made receive wallet: ${toAddress}`)
+}
+
+function getDeriveRoot(mnemonic:string){
+    const BIP44_PATH = 'm/44\'/60\'/0\'/0';
+    let seed = bip39.mnemonicToSeed(mnemonic)
+    let hdWallet = hdkey.fromMasterSeed(seed)
+    let derivePath = hdWallet.derivePath(BIP44_PATH)
+    return derivePath
+}
+
 let count = 0
-function requestBalanceAndSend(toAddr:string){
+function requestBalanceAndSend() {
     let fromAddr = addresses[count]
-    let balance:BigNumber = web3.eth.getBalance(fromAddr)
+    let fromWallet = fromWallets[count]
+    //validation
+    if(utils.addHexPrefix(fromWallet.getAddress().toString('hex')) == fromAddr)
+    {
+        //console.log(`${count}: we are same`)
+        let balance: BigNumber = web3.eth.getBalance(fromAddr)
 
+        if (!balance.isZero()) {
+            let gasLimit = 21000
+            // 1 Gwei
+            const gwei = 1000000000;
+            let gasPrice = 1 * gwei;
+            let transfer = balance.minus(gasPrice * gasLimit)
+            let nonce = web3.eth.getTransactionCount(fromAddr)
+    
+            // console.log(`from Addreess is: ${fromAddr}`)
+            // console.log(`nonce is: ${nonce}`)
+            // console.log(`balance is: ${balance}`)
+            // console.log(`transfer amount is: ${transfer}`)
+            // console.log(`gasPrice is: ${gasPrice}`)
+            // console.log(`gasLimit is : ${gasLimit}`)
+            // console.log('0x'+ (nonce + 1).toString(16))
+            // console.log('0x'+ transfer.toString(16))
+            // console.log('0x'+ gasPrice.toString(16))
+            // console.log('0x'+ gasLimit.toString(16))
 
-    if(!balance.isZero()){
-        // 21000 Gwei
-        let gasLimit = 21000
-        // 1 Gwei
-        let gas = 1000000000
-        let transfer: number = balance.toNumber()-gas-gasLimit*1000000000
-        let nonce = web3.eth.getTransactionCount(fromAddr)
-
-        // console.log(nonce)
-        // console.log(fromAddr)
-        // console.log(balance.toNumber())
-        // console.log(transfer)
-        // console.log(gasLimit*1000000000)
-        // console.log(gas)
-
-        const rawTx = sendWallet.sign({
-            nonce: nonce+1, 
-            from: fromAddr,
-            to: toAddr,
-            value: transfer,
-            data: '',
-            gasLimit: gasLimit,
-            gasPrice: gas,
-            chainId: 1
-        })
-        //console.log(rawTx)
-        try{
-            //let txHash = 7873838
-            let txHash = web3.eth.sendRawTransaction(rawTx)
-            console.log(`${count}: ${fromAddr} has ${balance.toNumber()} Wei`)
-            console.log(`Tx hash is: ${txHash}, from ${fromAddr} sent ${transfer} Wei to ${toAddr} with gas fee: ${gas} Wei and gas limit: ${gasLimit*1000000000}`)
-            // Tx hash is: 0xb27717a0808d2de476f867bd49c4d764da8f504f2e4a64ae0486941b229d0446, from 0xbd549e06a01622d0f2315ecbfd4a1ccc8fc334b3 sent 18936999000000000 Wei to 0xb4f4945a5af3472e5e7b0abdfbcdce5d54eb2a1b with gas fee: 1000000000 Wei and gas limit: 21000000000000
-        }catch(e){
-            console.log(e)
+            const txParams = {
+                nonce: '0x'+ (nonce + 1).toString(16),
+                gasPrice: '0x'+ gasPrice.toString(16),
+                gasLimit: '0x'+ gasLimit.toString(16),
+                to: toAddress,
+                value: '0x'+ transfer.toString(16),
+                data: '0x',
+                chainId: 1
+            }
+            const tx = new etheTx(txParams)
+            tx.sign(fromWallet.getPrivateKey())
+            const serializedTx = tx.serialize()
+            console.log(`${count}: ${fromAddr} has balance ${balance.toNumber()} Wei`)
+            console.log(`${count}: Raw Tx: 0x${serializedTx.toString('hex')}`)
+            
+            web3.eth.sendRawTransaction('0x'+serializedTx.toString('hex') , (err, hash)=>{
+                if(!err)
+                {                
+                    console.log(`Tx hash is: ${hash}, from ${fromAddr} sent ${transfer} Wei to ${toAddress} with gas fee: ${gasPrice} Wei and gas limit: ${gasLimit}`)
+                }
+                else{
+                    console.log(`${err}`)
+                }
+            })
+      }
+        else {
+            console.log(`${count}: ${fromAddr} has no Ether`)
         }
     }
     else{
-        console.log(`${count}: ${fromAddr} has no Ether`)
+        console.log(count+': the from wallet address is not match with address got from Database~~, the address at DB has been modified')
+        console.log('Please check~~')   
+        //4025 has been changed
     }
     count++
-    if(count == addresses.length){
+    if (count == addresses.length) {
         console.log('Done')
         clearInterval(timerId)
     }
@@ -125,5 +171,5 @@ function requestBalanceAndSend(toAddr:string){
 
 main().catch((e) => {
     console.log(e)
-    // db.end();
+    db.end();
 })

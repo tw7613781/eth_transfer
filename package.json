@@ -23,8 +23,11 @@
     "web3-typescript-typings": "^0.10.0"
   },
   "dependencies": {
+    "bip39": "^2.5.0",
     "eth-hd-wallet": "^0.3.0",
+    "ethereumjs-tx": "^1.3.4",
     "ethereumjs-util": "^5.1.5",
+    "ethereumjs-wallet": "^0.6.0",
     "mysql": "^2.15.0",
     "web3": "git+https://github.com/ethereum/web3.js.git"
   }
