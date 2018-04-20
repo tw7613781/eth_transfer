@@ -6,6 +6,7 @@
   "scripts": {
     "start": "./node_modules/.bin/ts-node src/main.ts",
     "addr": "./node_modules/.bin/ts-node src/generateAddresses.ts",
+    "send": "./node_modules/.bin/ts-node src/sendToSingleAddr.ts",
     "lint": "./node_modules/.bin/tslint src/main.ts"
   },
   "repository": {

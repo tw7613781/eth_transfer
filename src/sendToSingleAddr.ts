@@ -118,7 +118,7 @@ function requestBalanceAndSend() {
             let nonce = web3.eth.getTransactionCount(fromAddr)
     
             // console.log(`from Addreess is: ${fromAddr}`)
-            // console.log(`nonce is: ${nonce}`)
+            console.log(`nonce is: ${nonce}`)
             // console.log(`balance is: ${balance}`)
             // console.log(`transfer amount is: ${transfer}`)
             // console.log(`gasPrice is: ${gasPrice}`)
@@ -129,13 +129,13 @@ function requestBalanceAndSend() {
             // console.log('0x'+ gasLimit.toString(16))
 
             const txParams = {
-                nonce: '0x'+ (nonce + 1).toString(16),
+                nonce: '0x'+ nonce.toString(16),
+                //nonce: '0x'+ (nonce + 1).toString(16),
                 gasPrice: '0x'+ gasPrice.toString(16),
                 gasLimit: '0x'+ gasLimit.toString(16),
                 to: toAddress,
                 value: '0x'+ transfer.toString(16),
-                data: '0x',
-                chainId: 1
+                chainId: '0x01'
             }
             const tx = new etheTx(txParams)
             tx.sign(fromWallet.getPrivateKey())
