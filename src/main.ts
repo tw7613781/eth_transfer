@@ -108,7 +108,7 @@ async function main() {
     setInterval(() => checkForAddressChanges(), 5000)
     setInterval(() => web3.eth.getBlockNumber(blockPoll), 1000)
     setInterval(() => fetchCoinPrices(), 60000)
-    setInterval(()=> reConnect(),60000)
+    setInterval(()=> reConnect(),10000)
     // web3.eth.getSyncing(printSync)
 }
 
@@ -116,12 +116,13 @@ async function main() {
 let pollCount: number = 1
 function reConnect(){
     if(pollCount == 0 || !web3.isConnected()){
+        console.log(`Rebuilding web3, pollCount: ${pollCount}, connectec: ${web3.isConnected()}, Now: ${Date.now().toString()}`)
         web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"))
     }
     pollCount = 0
 }
 
-let lastBlockNumber: number;// = 5241290 - 5;
+let lastBlockNumber: number = 5241290 - 5;
 let confirmations = 3;
 function blockPoll(err: Error, blockNumber: number) {
     pollCount += 1

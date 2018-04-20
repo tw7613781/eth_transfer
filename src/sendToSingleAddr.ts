@@ -53,7 +53,7 @@ async function getAddresses() {
             resolve(results)
         })
     })
-    // let count=0
+    // let addrCount=0
     for (let result of results) {
         let address: string = result.address_eth.toLowerCase()
         if (!address) {
@@ -61,8 +61,8 @@ async function getAddresses() {
             continue
         }
         addresses.push(address)
-        // console.log(`${count}: ${address}`)
-        // count++
+        // console.log(`${addrCount}: ${address}`)
+        // addrCount++
     }
     console.log(`Got ${addresses.length} addresses from the database`)
     return Promise.resolve()
@@ -118,7 +118,7 @@ function requestBalanceAndSend() {
             let nonce = web3.eth.getTransactionCount(fromAddr)
     
             // console.log(`from Addreess is: ${fromAddr}`)
-            console.log(`nonce is: ${nonce}`)
+            // console.log(`nonce is: ${nonce}`)
             // console.log(`balance is: ${balance}`)
             // console.log(`transfer amount is: ${transfer}`)
             // console.log(`gasPrice is: ${gasPrice}`)
