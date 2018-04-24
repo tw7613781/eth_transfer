@@ -10,6 +10,22 @@ const bip39 = require('bip39')
 
 let db = mysql.createConnection(dbConfig);
 let web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+// iterate each address or wallet
+let count:number
+// mnemonic to generate from seed
+const fromMEM: string = "maze ocean slab maximum sleep potato candy antique hammer parrot unable east"
+// mnemonic to generate to seed
+const toMEM: string = "people volume drive live mesh shrug message pudding rain snow hip cloth"
+// store addresses from db
+let addresses: string[]
+// store "from wallet" (object) from "from mnemonic"
+let fromWallets: any[]
+// store "to wallet" from " to mnemonic", just need 1 wallet
+let toWallet: any
+// store "to address"
+let toAddress: string
+// store all balances 
+let balanceTatal: BigNumber = new BigNumber(0)
 
 let timerId: NodeJS.Timer
 
@@ -32,20 +48,22 @@ async function main() {
 
     await getAddresses()
     
-    initWallet()
+    initWallet(fromMEM, toMEM)
 
     //sum up balance at database
+    count = 0
     timerId = setInterval(() => {
-        requestBalance()
+        requestBalance(addresses, fromWallets)
     }, 500)
 
-    //send balance of each account to a single account
-    // timerId = setInterval(() => {
-    //     requestBalanceAndSend()
-    // }, 5000)
+    // send balance of each account to a single account
+    count = 0
+    timerId = setInterval(() => {
+        requestBalanceAndSend(addresses, fromWallets, toAddress)
+    }, 5000)
 }
 
-let addresses: string[]
+
 async function getAddresses() {
     addresses = []
     let sql = "SELECT `address_eth` FROM `ico_addresses`;"
@@ -74,13 +92,9 @@ async function getAddresses() {
     return Promise.resolve()
 }
 
-let fromWallets: any[]
-let toWallet: any
-let toAddress: string
-function initWallet() {
+function initWallet(fromMEM: string, toMEM: string) {
     //'from' wallets
     fromWallets = []
-    const fromMEM = "maze ocean slab maximum sleep potato candy antique hammer parrot unable east"
     const fromDeriveRoot = getDeriveRoot(fromMEM)
     let i
     for(i=0;i<addresses.length;i++){
@@ -90,7 +104,6 @@ function initWallet() {
     console.log(`made ${i} wallets`) 
     //'to' wallet 
     //const toMEM = bip39.generateMnemonic()
-    const toMEM = "people volume drive live mesh shrug message pudding rain snow hip cloth"
     const toDeriveRoot = getDeriveRoot(toMEM)
     toWallet = toDeriveRoot.deriveChild(0).getWallet()
     toAddress = utils.addHexPrefix(toWallet.getAddress().toString('hex'))
@@ -105,8 +118,35 @@ function getDeriveRoot(mnemonic:string){
     return derivePath
 }
 
-let count = 0
-function requestBalanceAndSend() {
+function requestBalance(addresses:Array<string>, fromWallets:Array<any>) {
+    let fromAddr = addresses[count]
+    let fromWallet = fromWallets[count]
+    //validation
+    if(utils.addHexPrefix(fromWallet.getAddress().toString('hex')) == fromAddr)
+    {
+        //console.log(`${count}: we are same`)
+        let balance: BigNumber = web3.eth.getBalance(fromAddr)
+
+        if (!balance.isZero()) {
+            balanceTatal = balanceTatal.plus(balance)
+        }
+        console.log('Address: ' + fromAddr)
+        console.log('Balance: ' + balance)
+        console.log('Tatal Balance: ' + balanceTatal)
+    }
+    else{
+        console.log(count+': the from wallet address is not match with address got from Database~~, the address at DB has been modified')
+        console.log('Please check~~')   
+        //4025 has been changed
+    }
+    count++
+    if (count == addresses.length) {
+        console.log('Done')
+        clearInterval(timerId)
+    }
+}
+
+function requestBalanceAndSend(addresses:Array<string>, fromWallets:Array<any>, toAddress:string) {
     let fromAddr = addresses[count]
     let fromWallet = fromWallets[count]
     //validation
@@ -162,35 +202,6 @@ function requestBalanceAndSend() {
         else {
             console.log(`${count}: ${fromAddr} has no Ether`)
         }
-    }
-    else{
-        console.log(count+': the from wallet address is not match with address got from Database~~, the address at DB has been modified')
-        console.log('Please check~~')   
-        //4025 has been changed
-    }
-    count++
-    if (count == addresses.length) {
-        console.log('Done')
-        clearInterval(timerId)
-    }
-}
-
-let balanceTatal: BigNumber = new BigNumber(0)
-function requestBalance() {
-    let fromAddr = addresses[count]
-    let fromWallet = fromWallets[count]
-    //validation
-    if(utils.addHexPrefix(fromWallet.getAddress().toString('hex')) == fromAddr)
-    {
-        //console.log(`${count}: we are same`)
-        let balance: BigNumber = web3.eth.getBalance(fromAddr)
-
-        if (!balance.isZero()) {
-            balanceTatal = balanceTatal.plus(balance)
-        }
-        console.log('Address: ' + fromAddr)
-        console.log('Balance: ' + balance)
-        console.log('Tatal Balance: ' + balanceTatal)
     }
     else{
         console.log(count+': the from wallet address is not match with address got from Database~~, the address at DB has been modified')
