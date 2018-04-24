@@ -34,9 +34,15 @@ async function main() {
     
     initWallet()
 
+    //sum up balance at database
     timerId = setInterval(() => {
-        requestBalanceAndSend()
-    }, 1000)
+        requestBalance()
+    }, 500)
+
+    //send balance of each account to a single account
+    // timerId = setInterval(() => {
+    //     requestBalanceAndSend()
+    // }, 5000)
 }
 
 let addresses: string[]
@@ -156,6 +162,35 @@ function requestBalanceAndSend() {
         else {
             console.log(`${count}: ${fromAddr} has no Ether`)
         }
+    }
+    else{
+        console.log(count+': the from wallet address is not match with address got from Database~~, the address at DB has been modified')
+        console.log('Please check~~')   
+        //4025 has been changed
+    }
+    count++
+    if (count == addresses.length) {
+        console.log('Done')
+        clearInterval(timerId)
+    }
+}
+
+let balanceTatal: BigNumber = new BigNumber(0)
+function requestBalance() {
+    let fromAddr = addresses[count]
+    let fromWallet = fromWallets[count]
+    //validation
+    if(utils.addHexPrefix(fromWallet.getAddress().toString('hex')) == fromAddr)
+    {
+        //console.log(`${count}: we are same`)
+        let balance: BigNumber = web3.eth.getBalance(fromAddr)
+
+        if (!balance.isZero()) {
+            balanceTatal = balanceTatal.plus(balance)
+        }
+        console.log('Address: ' + fromAddr)
+        console.log('Balance: ' + balance)
+        console.log('Tatal Balance: ' + balanceTatal)
     }
     else{
         console.log(count+': the from wallet address is not match with address got from Database~~, the address at DB has been modified')
