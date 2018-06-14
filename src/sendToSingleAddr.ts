@@ -25,7 +25,7 @@ let toWallet: any
 // store "to address"
 let toAddress: string
 // store all balances 
-let balanceTatal: BigNumber = new BigNumber(0)
+let balanceTotal: BigNumber = new BigNumber(0)
 
 let timerId: NodeJS.Timer
 
@@ -56,11 +56,11 @@ async function main() {
         requestBalance(addresses, fromWallets)
     }, 500)
 
-    // send balance of each account to a single account
-    count = 0
-    timerId = setInterval(() => {
-        requestBalanceAndSend(addresses, fromWallets, toAddress)
-    }, 5000)
+    // // send balance of each account to a single account
+    // count = 0
+    // timerId = setInterval(() => {
+    //     requestBalanceAndSend(addresses, fromWallets, toAddress)
+    // }, 5000)
 }
 
 
@@ -128,11 +128,13 @@ function requestBalance(addresses:Array<string>, fromWallets:Array<any>) {
         let balance: BigNumber = web3.eth.getBalance(fromAddr)
 
         if (!balance.isZero()) {
-            balanceTatal = balanceTatal.plus(balance)
+            balanceTotal = balanceTotal.plus(balance)
         }
         console.log('Address: ' + fromAddr)
         console.log('Balance: ' + balance)
-        console.log('Tatal Balance: ' + balanceTatal)
+        console.log(`Tatal Balance: ${balanceTotal} Wei`)
+        const ethTotal = web3.fromWei(balanceTotal, 'ether')
+        console.log(`Tatal Balance: ${ethTotal} eth`)
     }
     else{
         console.log(count+': the from wallet address is not match with address got from Database~~, the address at DB has been modified')
