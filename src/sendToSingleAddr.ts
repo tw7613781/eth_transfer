@@ -10,7 +10,7 @@ const bip39 = require('bip39')
 
 let db = mysql.createConnection(dbConfig);
 let web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
-// iterate each address or wallet
+// iterate each wallet
 let count:number
 // mnemonic to generate from seed
 const fromMEM: string = "maze ocean slab maximum sleep potato candy antique hammer parrot unable east"
@@ -51,13 +51,13 @@ async function main() {
     initWallet(fromMEM, toMEM)
 
     //sum up balance at database
-    count = 0
+    count = -1
     timerId = setInterval(() => {
         requestBalance(addresses, fromWallets)
     }, 500)
 
     // // send balance of each account to a single account
-    // count = 0
+    // count = -1
     // timerId = setInterval(() => {
     //     requestBalanceAndSend(addresses, fromWallets, toAddress)
     // }, 5000)
@@ -119,101 +119,113 @@ function getDeriveRoot(mnemonic:string){
 }
 
 function requestBalance(addresses:Array<string>, fromWallets:Array<any>) {
-    let fromAddr = addresses[count]
-    let fromWallet = fromWallets[count]
-    //validation
-    if(utils.addHexPrefix(fromWallet.getAddress().toString('hex')) == fromAddr)
-    {
-        //console.log(`${count}: we are same`)
-        let balance: BigNumber = web3.eth.getBalance(fromAddr)
-
-        if (!balance.isZero()) {
-            balanceTotal = balanceTotal.plus(balance)
-        }
-        console.log('Address: ' + fromAddr)
-        console.log('Balance: ' + balance)
-        console.log(`Tatal Balance: ${balanceTotal} Wei`)
-        const ethTotal = web3.fromWei(balanceTotal, 'ether')
-        console.log(`Tatal Balance: ${ethTotal} eth`)
-    }
-    else{
-        console.log(count+': the from wallet address is not match with address got from Database~~, the address at DB has been modified')
-        console.log('Please check~~')   
-        //4025 has been changed
-    }
     count++
-    if (count == addresses.length) {
+    let innerCount = count
+    if (innerCount == addresses.length) {
         console.log('Done')
         clearInterval(timerId)
+    } else {
+        let fromAddr = addresses[innerCount]
+        let fromWallet = fromWallets[innerCount]
+        //validation
+        if(utils.addHexPrefix(fromWallet.getAddress().toString('hex')) == fromAddr)
+        {
+            let balance: BigNumber = web3.eth.getBalance(fromAddr)
+    
+            if (!balance.isZero()) {
+                balanceTotal = balanceTotal.plus(balance)
+            }
+            console.log(innerCount + ' Address: ' + fromAddr)
+            console.log(innerCount + ' Balance: ' + balance)
+            console.log(`${innerCount}: Tatal Balance: ${balanceTotal} Wei`)
+            const ethTotal = web3.fromWei(balanceTotal, 'ether')
+            console.log(`${innerCount}: Tatal Balance: ${ethTotal} eth`)
+        }
+        else{
+            console.log(innerCount+': the from wallet address is not match with address got from Database~~, the address at DB has been modified')
+            console.log('Please check~~')   
+            //4025 has been changed
+        }
     }
 }
 
-function requestBalanceAndSend(addresses:Array<string>, fromWallets:Array<any>, toAddress:string) {
-    let fromAddr = addresses[count]
-    let fromWallet = fromWallets[count]
-    //validation
-    if(utils.addHexPrefix(fromWallet.getAddress().toString('hex')) == fromAddr)
-    {
-        //console.log(`${count}: we are same`)
-        let balance: BigNumber = web3.eth.getBalance(fromAddr)
-
-        if (!balance.isZero()) {
-            let gasLimit = 21000
-            // 1 Gwei
-            const gwei = 1000000000;
-            let gasPrice = 1 * gwei;
-            let transfer = balance.minus(gasPrice * gasLimit)
-            let nonce = web3.eth.getTransactionCount(fromAddr)
-    
-            // console.log(`from Addreess is: ${fromAddr}`)
-            // console.log(`nonce is: ${nonce}`)
-            // console.log(`balance is: ${balance}`)
-            // console.log(`transfer amount is: ${transfer}`)
-            // console.log(`gasPrice is: ${gasPrice}`)
-            // console.log(`gasLimit is : ${gasLimit}`)
-            // console.log('0x'+ (nonce + 1).toString(16))
-            // console.log('0x'+ transfer.toString(16))
-            // console.log('0x'+ gasPrice.toString(16))
-            // console.log('0x'+ gasLimit.toString(16))
-
-            const txParams = {
-                nonce: '0x'+ nonce.toString(16),
-                //nonce: '0x'+ (nonce + 1).toString(16),
-                gasPrice: '0x'+ gasPrice.toString(16),
-                gasLimit: '0x'+ gasLimit.toString(16),
-                to: toAddress,
-                value: '0x'+ transfer.toString(16),
-                chainId: '0x01'
-            }
-            const tx = new etheTx(txParams)
-            tx.sign(fromWallet.getPrivateKey())
-            const serializedTx = tx.serialize()
-            console.log(`${count}: ${fromAddr} has balance ${balance.toNumber()} Wei`)
-            console.log(`${count}: Raw Tx: 0x${serializedTx.toString('hex')}`)
-            
-            web3.eth.sendRawTransaction('0x'+serializedTx.toString('hex') , (err, hash)=>{
-                if(!err)
-                {                
-                    console.log(`Tx hash is: ${hash}, from ${fromAddr} sent ${transfer} Wei to ${toAddress} with gas fee: ${gasPrice} Wei and gas limit: ${gasLimit}`)
-                }
-                else{
-                    console.log(`${err}`)
-                }
-            })
-      }
-        else {
-            console.log(`${count}: ${fromAddr} has no Ether`)
-        }
-    }
-    else{
-        console.log(count+': the from wallet address is not match with address got from Database~~, the address at DB has been modified')
-        console.log('Please check~~')   
-        //4025 has been changed
-    }
+async function requestBalanceAndSend(addresses:Array<string>, fromWallets:Array<any>, toAddress:string) {
     count++
-    if (count == addresses.length) {
+    let innerCount = count
+    if (innerCount == addresses.length) {
         console.log('Done')
         clearInterval(timerId)
+    } else{
+        let fromAddr = addresses[innerCount]
+        let fromWallet = fromWallets[innerCount]
+        //validation
+        if(utils.addHexPrefix(fromWallet.getAddress().toString('hex')) == fromAddr)
+        {
+            let balance: BigNumber = web3.eth.getBalance(fromAddr)
+    
+            if (!balance.isZero()) {
+                let gasLimit = 21000
+                // 1 Gwei
+                const gwei = 1000000000;
+                let gasPrice = 1 * gwei;
+                let transfer = balance.minus(gasPrice * gasLimit)
+                let nonce = web3.eth.getTransactionCount(fromAddr)
+        
+                // console.log(`from Addreess is: ${fromAddr}`)
+                // console.log(`nonce is: ${nonce}`)
+                // console.log(`balance is: ${balance}`)
+                // console.log(`transfer amount is: ${transfer}`)
+                // console.log(`gasPrice is: ${gasPrice}`)
+                // console.log(`gasLimit is : ${gasLimit}`)
+                // console.log('0x'+ (nonce + 1).toString(16))
+                // console.log('0x'+ transfer.toString(16))
+                // console.log('0x'+ gasPrice.toString(16))
+                // console.log('0x'+ gasLimit.toString(16))
+    
+                const txParams = {
+                    nonce: '0x'+ nonce.toString(16),
+                    gasPrice: '0x'+ gasPrice.toString(16),
+                    gasLimit: '0x'+ gasLimit.toString(16),
+                    to: toAddress,
+                    value: '0x'+ transfer.toString(16),
+                    chainId: '0x01'
+                }
+                const tx = new etheTx(txParams)
+                tx.sign(fromWallet.getPrivateKey())
+                const serializedTx = tx.serialize()
+                console.log(`${innerCount}: ${fromAddr} has balance ${balance.toNumber()} Wei`)
+                console.log(`${innerCount}: Raw Tx: 0x${serializedTx.toString('hex')}`)
+                
+                let hash: string
+                hash = await new Promise<string>((resolve, reject)=>{
+                    web3.eth.sendRawTransaction('0x'+serializedTx.toString('hex') , (err, hash)=>{
+                        if(!err)
+                        {                
+                            console.log(`${innerCount}: Tx hash is: ${hash}, from ${fromAddr} sent ${transfer} Wei to ${toAddress} with gas fee: ${gasPrice} Wei and gas limit: ${gasLimit}`)
+                            resolve(hash)
+                        }
+                        else{
+                            console.log(`${err}`)
+                            reject(err)
+                        }
+                    })
+                })
+                const receipt = web3.eth.getTransactionReceipt(hash)
+                if(receipt.status === "0x1"){
+                    console.log(`${innerCount}: Tx successful with hash: ${hash} - gasused: ${receipt.gasUsed} - cumulativeGasUsed: ${receipt.cumulativeGasUsed}`)
+                } else {
+                    console.log(`${innerCount}: Tx failed with hash: ${hash}`)
+                }
+          }
+            else {
+                console.log(`${innerCount}: ${fromAddr} has no Ether`)
+            }
+        }
+        else{
+            console.log(innerCount+': the from wallet address is not match with address got from Database~~, the address at DB has been modified')
+            console.log('Please check~~')   
+            //4025 has been changed
+        }
     }
 }
 
