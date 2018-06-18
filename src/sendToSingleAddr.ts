@@ -13,9 +13,9 @@ let web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 // iterate each wallet
 let count:number
 // mnemonic to generate from seed
-const fromMEM: string = "maze ocean slab maximum sleep potato candy antique hammer parrot unable east"
+const fromMEM: string = "people volume drive live mesh shrug message pudding rain snow hip cloth"
 // mnemonic to generate to seed
-const toMEM: string = "people volume drive live mesh shrug message pudding rain snow hip cloth"
+const toMEM: string = "maze ocean slab maximum sleep potato candy antique hammer parrot unable east"
 // store addresses from db
 let addresses: string[]
 // store "from wallet" (object) from "from mnemonic"
@@ -50,17 +50,17 @@ async function main() {
     
     initWallet(fromMEM, toMEM)
 
-    //sum up balance at database
-    count = -1
-    timerId = setInterval(() => {
-        requestBalance(addresses, fromWallets)
-    }, 500)
-
-    // // send balance of each account to a single account
+    // //sum up balance at database
     // count = -1
     // timerId = setInterval(() => {
-    //     requestBalanceAndSend(addresses, fromWallets, toAddress)
-    // }, 5000)
+    //     requestBalance(addresses, fromWallets)
+    // }, 100)
+
+    // send balance of each account to a single account
+    count = -1
+    timerId = setInterval(() => {
+        requestBalanceAndSend(addresses, fromWallets, toAddress)
+    }, 5000)
 }
 
 
@@ -125,27 +125,28 @@ function requestBalance(addresses:Array<string>, fromWallets:Array<any>) {
         console.log('Done')
         clearInterval(timerId)
     } else {
-        let fromAddr = addresses[innerCount]
+        // let fromAddr = addresses[innerCount]
         let fromWallet = fromWallets[innerCount]
+        let fromAddr = utils.addHexPrefix(fromWallet.getAddress().toString('hex'))
         //validation
-        if(utils.addHexPrefix(fromWallet.getAddress().toString('hex')) == fromAddr)
-        {
+        // if(utils.addHexPrefix(fromWallet.getAddress().toString('hex')) == fromAddr)
+        // {
             let balance: BigNumber = web3.eth.getBalance(fromAddr)
     
             if (!balance.isZero()) {
                 balanceTotal = balanceTotal.plus(balance)
             }
-            console.log(innerCount + ' Address: ' + fromAddr)
-            console.log(innerCount + ' Balance: ' + balance)
-            console.log(`${innerCount}: Tatal Balance: ${balanceTotal} Wei`)
+            console.log(innerCount + ': Address: ' + fromAddr)
+            console.log('   Balance: ' + balance)
+            console.log(`   Tatal Balance: ${balanceTotal} Wei`)
             const ethTotal = web3.fromWei(balanceTotal, 'ether')
-            console.log(`${innerCount}: Tatal Balance: ${ethTotal} eth`)
-        }
-        else{
-            console.log(innerCount+': the from wallet address is not match with address got from Database~~, the address at DB has been modified')
-            console.log('Please check~~')   
-            //4025 has been changed
-        }
+            console.log(`   Tatal Balance: ${ethTotal} eth`)
+        // }
+        // else{
+        //     console.log(innerCount+': the from wallet address is not match with address got from Database~~, the address at DB has been modified')
+        //     console.log('Please check~~')   
+        //     //4025 has been changed
+        // }
     }
 }
 
@@ -156,11 +157,12 @@ async function requestBalanceAndSend(addresses:Array<string>, fromWallets:Array<
         console.log('Done')
         clearInterval(timerId)
     } else{
-        let fromAddr = addresses[innerCount]
+        // let fromAddr = addresses[innerCount]
         let fromWallet = fromWallets[innerCount]
+        let fromAddr = utils.addHexPrefix(fromWallet.getAddress().toString('hex'))
         //validation
-        if(utils.addHexPrefix(fromWallet.getAddress().toString('hex')) == fromAddr)
-        {
+        // if(utils.addHexPrefix(fromWallet.getAddress().toString('hex')) == fromAddr)
+        // {
             let balance: BigNumber = web3.eth.getBalance(fromAddr)
     
             if (!balance.isZero()) {
@@ -220,12 +222,12 @@ async function requestBalanceAndSend(addresses:Array<string>, fromWallets:Array<
             else {
                 console.log(`${innerCount}: ${fromAddr} has no Ether`)
             }
-        }
-        else{
-            console.log(innerCount+': the from wallet address is not match with address got from Database~~, the address at DB has been modified')
-            console.log('Please check~~')   
-            //4025 has been changed
-        }
+        // }
+        // else{
+        //     console.log(innerCount+': the from wallet address is not match with address got from Database~~, the address at DB has been modified')
+        //     console.log('Please check~~')   
+        //     //4025 has been changed
+        // }
     }
 }
 
