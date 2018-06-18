@@ -38,11 +38,11 @@ async function main() {
 
     initWallet(fromMEM, start, end, toMEM)
 
-    // sum up balance at database
-    await balanceLoop(fromWallets, start, limit, 0)
+    // // sum up balance at database
+    // await balanceLoop(fromWallets, start, limit, 0)
 
-    // // send balance of each account to a single account
-    // await transferLoop(fromWallets, toAddress, start, limit, 0)
+    // send balance of each account to a single account
+    await transferLoop(fromWallets, toAddress, start, limit, 0)
 
 }
 
@@ -64,17 +64,19 @@ function initWallet(fromMEM: string, start: number, end: number, toMEM: string) 
     //'from' wallets
     fromWallets = []
     const fromDeriveRoot = getDeriveRoot(fromMEM)
+    console.log(`From Mnemonic: ${fromMEM}`)
     for(let i=start;i<end+1;i++){
         fromWallets.push(fromDeriveRoot.deriveChild(i).getWallet())
         // console.log(`${i}: ${utils.addHexPrefix(fromWallets[i].getAddress().toString('hex'))}`)
     }
-    console.log(`made ${end-start+1} wallets: child[${start} ~ ${end}]`) 
+    console.log(`Made ${end-start+1} wallets: child[${start} ~ ${end}]`) 
     //'to' wallet 
     //const toMEM = bip39.generateMnemonic()
     const toDeriveRoot = getDeriveRoot(toMEM)
+    console.log(`To Mnemonic: ${toMEM}`)
     toWallet = toDeriveRoot.deriveChild(0).getWallet()
     toAddress = utils.addHexPrefix(toWallet.getAddress().toString('hex'))
-    console.log(`made receive wallet: ${toAddress}`)
+    console.log(`Made receive wallet: ${toAddress}`)
 }
 
 function getDeriveRoot(mnemonic:string){
@@ -112,7 +114,7 @@ async function requestBalanceAndSend(fromWallets:Array<any>, toAddress:string, s
         // 1 Gwei
         const gwei = 1000000000;
         // Check current network gasPrice @ https://ethgasstation.info/
-        let gasPrice = 1 * gwei;
+        let gasPrice = 5 * gwei;
         let transfer = balance.minus(gasPrice * gasLimit)
         let nonce = web3.eth.getTransactionCount(fromAddr)
 
@@ -145,7 +147,7 @@ async function requestBalanceAndSend(fromWallets:Array<any>, toAddress:string, s
             web3.eth.sendRawTransaction('0x'+serializedTx.toString('hex') , (err, hash)=>{
                 if(!err)
                 {                
-                    console.log(`${start+index}: Tx hash is: ${hash}, from ${fromAddr} sent ${transfer} Wei to ${toAddress} with gas fee: ${gasPrice} Wei and gas limit: ${gasLimit}`)
+                    console.log(`${start+index}: Tx hash is: ${hash}, from ${fromAddr} sent ${transfer} Wei to ${toAddress} with gas fee: ${gasPrice/gwei} GWei and gas limit: ${gasLimit}`)
                     resolve(hash)
                 }
                 else{
@@ -156,7 +158,7 @@ async function requestBalanceAndSend(fromWallets:Array<any>, toAddress:string, s
         })
         const receipt = web3.eth.getTransactionReceipt(hash)
         if(receipt.status === "0x1"){
-            console.log(`${start+index}: Tx successful with hash: ${hash} - gasused: ${receipt.gasUsed} - cumulativeGasUsed: ${receipt.cumulativeGasUsed}`)
+            console.log(`${start+index}: Tx successful with hash: ${hash} - blockHash: ${receipt.blockHash} - gasused: ${receipt.gasUsed} - cumulativeGasUsed: ${receipt.cumulativeGasUsed}`)
         } else {
             console.log(`${start+index}: Tx failed with hash: ${hash}`)
         }

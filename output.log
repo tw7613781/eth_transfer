@@ -1,0 +1,18 @@
+Connected successfully to 'Parity//v1.8.11-unstable-21522ff-20180227/x86_64-linux-gnu/rustc1.24.0'
+From Mnemonic: maze ocean slab maximum sleep potato candy antique hammer parrot unable east
+Made 10 wallets: child[0 ~ 9]
+To Mnemonic: people volume drive live mesh shrug message pudding rain snow hip cloth
+Made receive wallet: 0xb4f4945a5af3472e5e7b0abdfbcdce5d54eb2a1b
+0: 0xa87f2545167512c8427b96756a3f85036b28633a has balance 8685000000000000 Wei
+0: Raw Tx: 0xf86b0185012a05f20082520894b4f4945a5af3472e5e7b0abdfbcdce5d54eb2a1b871e7b76ec2c40008025a0ded4229f1381e2d4381eae8da88d0405c8e1bf4ba46447af3a2819a68b53f419a01d85ec791e72c114a15a1f1083f8f49b73897f5ecc0556eb27e7f43c06d1cfeb
+0: Tx hash is: 0xe99cdd285c2468c4de20c13c9404fc11a5444662647988785cd37b69f9138eef, from 0xa87f2545167512c8427b96756a3f85036b28633a sent 8580000000000000 Wei to 0xb4f4945a5af3472e5e7b0abdfbcdce5d54eb2a1b with gas fee: 5 GWei and gas limit: 21000
+0: Tx successful with hash: 0xe99cdd285c2468c4de20c13c9404fc11a5444662647988785cd37b69f9138eef - blockHash: null - gasused: 21000 - cumulativeGasUsed: 21000
+1: 0xbd549e06a01622d0f2315ecbfd4a1ccc8fc334b3 has no ETH
+2: 0x33ac382e240495b888d424b06a646e7e6327438d has no ETH
+3: 0x43898ad4785898fcc5941cd8dfc6cccf7fd7ec8c has no ETH
+4: 0x51c0a77d12d29de25d6aa06533c48fc1fbddf022 has no ETH
+5: 0xe440d40b1f1a7dcd7243fbeb424e154c5f90cb11 has no ETH
+6: 0x60016bac735ef02e35401bb82c4f44dbd05d179a has no ETH
+7: 0xda103cefa148764fad5d3d8f8de53410a6e2a357 has no ETH
+8: 0x2254da4197cfe60d3275bd5943e90711667ca1d4 has no ETH
+9: 0x59cf8ccee5b13eff7519cf28ee3877c26d2cc10c has no ETH
