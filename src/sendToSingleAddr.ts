@@ -5,6 +5,7 @@ const hdkey = require('ethereumjs-wallet/hdkey')
 const utils = require("ethereumjs-util")
 const etheTx = require('ethereumjs-tx')
 const bip39 = require('bip39')
+const commandLineArgs = require('command-line-args')
 
 let web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 
@@ -23,8 +24,14 @@ let balanceTotal: BigNumber = new BigNumber(0)
 
 let timer: NodeJS.Timer
 
-async function main() {
+const optionDefinitions = [
+    {name: 'balance', alias:'b', type: Boolean},
+    {name: 'transfer', alias:'t', type: Boolean}
+]
 
+const options = commandLineArgs(optionDefinitions)
+
+async function main() {
 
     if (!web3.isConnected()) {
         throw new Error("Could not connect web3");
@@ -38,12 +45,21 @@ async function main() {
 
     initWallet(fromMEM, start, end, toMEM)
 
-    // // sum up balance at database
-    // await balanceLoop(fromWallets, start, limit, 0)
+    if(!options.balance && !options.transfer){
+        console.log('Please specify operations, -b for balance checking, -t for bulk bransfer')
+        process.exit(0)
+    }
+
+    // sum up balance at database
+    if(options.balance)
+    {
+        await balanceLoop(fromWallets, start, limit, 0)
+    }
 
     // send balance of each account to a single account
-    await transferLoop(fromWallets, toAddress, start, limit, 0)
-
+    if(options.transfer){
+        await transferLoop(fromWallets, toAddress, start, limit, 0)
+    }
 }
 
 async function balanceLoop(fromWallets:Array<any>, start: number, limit: number, index: number){
@@ -97,8 +113,7 @@ function requestBalance(fromWallets:Array<any>, start: number, index: number) {
         balanceTotal = balanceTotal.plus(balance)
     }
     console.log(start+index + ': Address: ' + fromAddr)
-    console.log('   Balance: ' + balance)
-    console.log(`   Tatal Balance: ${balanceTotal} Wei`)
+    console.log('   Balance: ' + web3.fromWei(balance, 'ether')+ ' ETH')
     const ethTotal = web3.fromWei(balanceTotal, 'ether')
     console.log(`   Tatal Balance: ${ethTotal} ETH`)
 }
@@ -139,7 +154,7 @@ async function requestBalanceAndSend(fromWallets:Array<any>, toAddress:string, s
         const tx = new etheTx(txParams)
         tx.sign(fromWallet.getPrivateKey())
         const serializedTx = tx.serialize()
-        console.log(`${start+index}: ${fromAddr} has balance ${balance.toNumber()} Wei`)
+        console.log(`${start+index}: ${fromAddr} has balance ${web3.fromWei(balance, 'ether')} ETH`)
         console.log(`${start+index}: Raw Tx: 0x${serializedTx.toString('hex')}`)
         
         let hash: string
@@ -147,7 +162,7 @@ async function requestBalanceAndSend(fromWallets:Array<any>, toAddress:string, s
             web3.eth.sendRawTransaction('0x'+serializedTx.toString('hex') , (err, hash)=>{
                 if(!err)
                 {                
-                    console.log(`${start+index}: Tx hash is: ${hash}, from ${fromAddr} sent ${transfer} Wei to ${toAddress} with gas fee: ${gasPrice/gwei} GWei and gas limit: ${gasLimit}`)
+                    console.log(`${start+index}: Tx hash is: ${hash}, from ${fromAddr} sent ${web3.fromWei(transfer, 'ether')} ETH to ${toAddress} with gas fee: ${gasPrice/gwei} GWei and gas limit: ${gasLimit}`)
                     resolve(hash)
                 }
                 else{
