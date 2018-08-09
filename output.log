@@ -1,18 +1,100 @@
-Connected successfully to 'Parity//v1.8.11-unstable-21522ff-20180227/x86_64-linux-gnu/rustc1.24.0'
-From Mnemonic: maze ocean slab maximum sleep potato candy antique hammer parrot unable east
+
+> hycon.io.eth@1.0.0 send /Users/max/code/hycon.io.eth
+> ts-node src/sendToSingleAddr.ts -t
+
+Connected successfully to 'Geth/v1.8.6-patched-leveldb-8818ab0b/linux-amd64/go1.9.2'
+From Mnemonic: people volume drive live mesh shrug message pudding rain snow hip cloth
 Made 10 wallets: child[0 ~ 9]
-To Mnemonic: people volume drive live mesh shrug message pudding rain snow hip cloth
-Made receive wallet: 0xb4f4945a5af3472e5e7b0abdfbcdce5d54eb2a1b
-0: 0xa87f2545167512c8427b96756a3f85036b28633a has balance 8685000000000000 Wei
-0: Raw Tx: 0xf86b0185012a05f20082520894b4f4945a5af3472e5e7b0abdfbcdce5d54eb2a1b871e7b76ec2c40008025a0ded4229f1381e2d4381eae8da88d0405c8e1bf4ba46447af3a2819a68b53f419a01d85ec791e72c114a15a1f1083f8f49b73897f5ecc0556eb27e7f43c06d1cfeb
-0: Tx hash is: 0xe99cdd285c2468c4de20c13c9404fc11a5444662647988785cd37b69f9138eef, from 0xa87f2545167512c8427b96756a3f85036b28633a sent 8580000000000000 Wei to 0xb4f4945a5af3472e5e7b0abdfbcdce5d54eb2a1b with gas fee: 5 GWei and gas limit: 21000
-0: Tx successful with hash: 0xe99cdd285c2468c4de20c13c9404fc11a5444662647988785cd37b69f9138eef - blockHash: null - gasused: 21000 - cumulativeGasUsed: 21000
-1: 0xbd549e06a01622d0f2315ecbfd4a1ccc8fc334b3 has no ETH
-2: 0x33ac382e240495b888d424b06a646e7e6327438d has no ETH
-3: 0x43898ad4785898fcc5941cd8dfc6cccf7fd7ec8c has no ETH
-4: 0x51c0a77d12d29de25d6aa06533c48fc1fbddf022 has no ETH
-5: 0xe440d40b1f1a7dcd7243fbeb424e154c5f90cb11 has no ETH
-6: 0x60016bac735ef02e35401bb82c4f44dbd05d179a has no ETH
-7: 0xda103cefa148764fad5d3d8f8de53410a6e2a357 has no ETH
-8: 0x2254da4197cfe60d3275bd5943e90711667ca1d4 has no ETH
-9: 0x59cf8ccee5b13eff7519cf28ee3877c26d2cc10c has no ETH
+To Mnemonic: maze ocean slab maximum sleep potato candy antique hammer parrot unable east
+Made receive wallet: 0xa87f2545167512c8427b96756a3f85036b28633a
+0: 0xb4f4945a5af3472e5e7b0abdfbcdce5d54eb2a1b has balance 0.00837 ETH
+0: Raw Tx: 0xf86b03850df847580082520894a87f2545167512c8427b96756a3f85036b28633a87194281e05a60008025a04c37ac2bcf4f34b44b895f0ee8492bc9ac3ec4eecc95d88ef463972102518e7da042f1c27f3636b7c1741172520fb9069b28d6e4c6fce4cf1d726f2fb57cd26988
+0: Tx successful sent with hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34, from 0xb4f4945a5af3472e5e7b0abdfbcdce5d54eb2a1b sent 0.00711 ETH to 0xa87f2545167512c8427b96756a3f85036b28633a with gas fee: 60 GWei and gas limit: 21000
+Block #6115379: 0x54e89bc5d864b353429bc029f716ac692bf6b172d724d4bff7913aa348647467 380
+1: 0xaea4866e7fdf9ee01109e5f1c3e884e6921a182b has no ETH
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+2: 0xa5a50734f2446564659237b60678cfaa97c94cdf has no ETH
+3: 0x1f89b7817d8aaa49c73bdb145ca93f35ff1c655a has no ETH
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+Block #6115380: 0x066be56ff7e5b49f3c2d6e745ae3542ad1eb21d766534e8d03e197414eaf28bb 70
+4: 0x1b44c6cde481760921dd1712d04b017bddd04b85 has no ETH
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+5: 0xc24c33bbf9167f3487be3f90feefa4ab134e60d0 has no ETH
+Block #6115381: 0x35b2f24c6b4960f36d1d587198b48dd83fc6acb31eea6952caf9ce21e21b4e27 82
+6: 0x2f0b608fa69fdf2c08589a33c328a1688573dba0 has no ETH
+Block #6115382: 0x4bb6dc7e587e3bb24d548e3b73b10e10cf4a171be461f9da8697365feae1bf5c 56
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+7: 0xb347dbc68558245556e6e0de33ebf2cf045f5221 has no ETH
+8: 0x6f0455f0e335a8ade26943b41259c95204a8f053 has no ETH
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+9: 0x80359845de327762ae6fef0381d992c2d8f615f8 has no ETH
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+Block #6115383: 0x4743f590e32fb16f2f8e182d73d5a1f8e69572369370371c0b1fef5a8027a1b4 66
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+Block #6115384: 0xcc63278e4d5277298e690081975325258878ccb172ed6145cab7bee8ec8cd2a4 43
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+Block #6115385: 0xc0ee579cbedf4bddedf936f765674def4f154bde5cc3f6bff6c1f4be565136e8 47
+Block #6115386: 0x219999b141e713913871f399756a67b6a4b072e5a636b5eb17625c6c51dfd7f0 59
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+Block #6115387: 0x145a79ad76696c2759cb5b537c6acd4e0a7ac7b9a3109cf6d08ced33141d9ccc 82
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+Block #6115388: 0xf7c5be08b294fc07771bb549dcfd6d1896832f24f60f947595bd088fb5ea9b9c 71
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+Block #6115389: 0x4f911b87f10973363c5f8d62aaef0639191e50f2341f8d011b5d66f3bf923112 61
+Block #6115390: 0x5b417d0ebb49471e19df79b806a3e046bd356aee2ae2254fe7555e494bccaf93 57
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+Block #6115391: 0x7f335c84e852ca844a7f6fa08e310aa7073b1c7f998b5f0070b28b0ed4d9a7fa 84
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+Block #6115392: 0x46c499b248433fc8242dfd36edb6df5f516dddc96bbb2aee8bba6913d1d6dbf4 64
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+Block #6115393: 0x901f62d0018b611836cace594da74560449c1995f28615469f1da5b63be4476f 380
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+Block #6115394: 0xbc03ccdf7e0d6715d4c6d5b47fe269feec870ed1a3070258ecb5c25c2312f126 78
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+Block #6115395: 0x537ce071c1b19b956615cf76b1dc7e6df8a32ff44c2fa6f0d675beea5b317f11 324
+pending tx: 1
+addr: 0 - tx hash: 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34
+Block #6115396: 0xdc96d047f37328007a70f63cee05367510a996bcdbf3277aa05f341e5a260148 150
+Tx: 0 - 0x174e5412992573ff30a71cee9dfae1aee9858fffe195ee26738d66de60481b34 12 block confirmed
+Block #6115397: 0xb1069026b61bc5b0a4e07136d3b2ca1b706eb40278776be3ebb4add17056e64c 78
+pending tx: 0
+Block #6115398: 0x6de47fb11354de3e380eed49ed960acfcbbe88cd7cd825619dae0b65c79b3686 62
+pending tx: 0

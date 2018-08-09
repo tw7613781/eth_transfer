@@ -7,12 +7,13 @@ const etheTx = require('ethereumjs-tx')
 const bip39 = require('bip39')
 const commandLineArgs = require('command-line-args')
 
-let web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+// let web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+let web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io/v0SeUB4VwulOB375S4Ea"));
 
 // mnemonic to generate "from seed"
-const fromMEM: string = "maze ocean slab maximum sleep potato candy antique hammer parrot unable east"
+const fromMEM: string = "people volume drive live mesh shrug message pudding rain snow hip cloth"
 // mnemonic to generate "to seed"
-const toMEM: string = "people volume drive live mesh shrug message pudding rain snow hip cloth"
+const toMEM: string = "maze ocean slab maximum sleep potato candy antique hammer parrot unable east"
 // store "from wallet" (object) from "from mnemonic"
 let fromWallets: any[]
 // store "to wallet" from " to mnemonic", just need 1 wallet
@@ -22,12 +23,16 @@ let toAddress: string
 // store all balances 
 let balanceTotal: BigNumber = new BigNumber(0)
 
-let timer: NodeJS.Timer
+let lastBlockNumber: number
+let confirmations = 12
+
+let pendingTx: Map<string, number>
 
 const optionDefinitions = [
     {name: 'balance', alias:'b', type: Boolean},
     {name: 'transfer', alias:'t', type: Boolean}
 ]
+
 
 const options = commandLineArgs(optionDefinitions)
 
@@ -42,6 +47,8 @@ async function main() {
     const limit = 10
     const start = 0
     const end = start + limit - 1
+
+    pendingTx = new Map()
 
     initWallet(fromMEM, start, end, toMEM)
 
@@ -60,6 +67,10 @@ async function main() {
     if(options.transfer){
         await transferLoop(fromWallets, toAddress, start, limit, 0)
     }
+
+    setInterval(() => web3.eth.getBlockNumber(blockPoll), 1000)
+
+    setInterval(() => showPendingTx(), 10000)
 }
 
 async function balanceLoop(fromWallets:Array<any>, start: number, limit: number, index: number){
@@ -129,7 +140,7 @@ async function requestBalanceAndSend(fromWallets:Array<any>, toAddress:string, s
         // 1 Gwei
         const gwei = 1000000000;
         // Check current network gasPrice @ https://ethgasstation.info/
-        let gasPrice = 5 * gwei;
+        let gasPrice = 60 * gwei;
         let transfer = balance.minus(gasPrice * gasLimit)
         let nonce = web3.eth.getTransactionCount(fromAddr)
 
@@ -158,30 +169,63 @@ async function requestBalanceAndSend(fromWallets:Array<any>, toAddress:string, s
         console.log(`${start+index}: Raw Tx: 0x${serializedTx.toString('hex')}`)
         
         let hash: string
-        hash = await new Promise<string>((resolve, reject)=>{
-            web3.eth.sendRawTransaction('0x'+serializedTx.toString('hex') , (err, hash)=>{
-                if(!err)
-                {                
-                    console.log(`${start+index}: Tx hash is: ${hash}, from ${fromAddr} sent ${web3.fromWei(transfer, 'ether')} ETH to ${toAddress} with gas fee: ${gasPrice/gwei} GWei and gas limit: ${gasLimit}`)
-                    resolve(hash)
-                }
-                else{
-                    console.log(`${err}`)
-                    reject(err)
-                }
+        try {
+            hash = await new Promise<string>((resolve, reject)=>{
+                web3.eth.sendRawTransaction('0x'+serializedTx.toString('hex') , (err, hash)=>{
+                    if(!err)
+                    {                
+                        console.log(`${start+index}: Tx successful sent with hash: ${hash}, from ${fromAddr} sent ${web3.fromWei(transfer, 'ether')} ETH to ${toAddress} with gas fee: ${gasPrice/gwei} GWei and gas limit: ${gasLimit}`)
+                        resolve(hash)
+                    }
+                    else{
+                        console.log(`${err}`)
+                        reject(err)
+                    }
+                })
             })
-        })
-        const receipt = web3.eth.getTransactionReceipt(hash)
-        if(receipt.status === "0x1"){
-            console.log(`${start+index}: Tx successful with hash: ${hash} - blockHash: ${receipt.blockHash} - gasused: ${receipt.gasUsed} - cumulativeGasUsed: ${receipt.cumulativeGasUsed}`)
-        } else {
-            console.log(`${start+index}: Tx failed with hash: ${hash}`)
+            pendingTx.set(hash, start + index)
+        } catch (e) {
+            console.log(`Tx fail to send: ${e}`)
         }
+
     }
     else {
         console.log(`${start+index}: ${fromAddr} has no ETH`)
     }
     
+}
+
+function blockPoll(err: Error, blockNumber: number) {
+    if (err) {
+        console.log("Could not get blockHeight");
+        return
+    }
+    if (lastBlockNumber == undefined) {
+        lastBlockNumber = blockNumber - (confirmations + 1)
+    }
+    if (lastBlockNumber + confirmations < blockNumber) {
+        lastBlockNumber++
+        setImmediate(processBlock, lastBlockNumber)
+    }
+}
+
+function processBlock(number: number) {
+    let block = web3.eth.getBlock(number, true)
+    console.log(`Block #${block.number}: ${block.hash} ${block.transactions.length}`)
+    for (let tx of block.transactions) {
+        if (pendingTx.has(tx.hash)) {
+            // console.log(`Tx ${pendingTx.})
+            console.log(`Tx: ${pendingTx.get(tx.hash)} - ${tx.hash} 12 block confirmed`)
+            pendingTx.delete(tx.hash)
+        }
+    }
+}
+
+function showPendingTx(){
+    console.log(`pending tx: ${pendingTx.size}`)
+    for (let tx of pendingTx.keys()){
+        console.log(`addr: ${pendingTx.get(tx)} - tx hash: ${tx}`)
+    }
 }
 
 main().catch((e) => {
