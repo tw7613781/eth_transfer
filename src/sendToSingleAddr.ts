@@ -7,13 +7,12 @@ const etheTx = require('ethereumjs-tx')
 const bip39 = require('bip39')
 const commandLineArgs = require('command-line-args')
 
-// let web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 let web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io/v0SeUB4VwulOB375S4Ea"));
 
 // mnemonic to generate "from seed"
-const fromMEM: string = "people volume drive live mesh shrug message pudding rain snow hip cloth"
+const fromMEM: string = "xxxxxxx"
 // mnemonic to generate "to seed"
-const toMEM: string = "maze ocean slab maximum sleep potato candy antique hammer parrot unable east"
+const toMEM: string = "xxxxxxxx"
 // store "from wallet" (object) from "from mnemonic"
 let fromWallets: any[]
 // store "to wallet" from " to mnemonic", just need 1 wallet

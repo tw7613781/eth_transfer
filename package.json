@@ -1,14 +1,12 @@
 {
-  "name": "hycon.io.eth",
+  "name": "eth_transfer",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "./node_modules/.bin/ts-node src/main.ts",
-    "addr": "./node_modules/.bin/ts-node src/generateAddresses.ts",
     "balance": "./node_modules/.bin/ts-node src/sendToSingleAddr.ts -b",
     "send": "./node_modules/.bin/ts-node src/sendToSingleAddr.ts -t",
-    "lint": "./node_modules/.bin/tslint src/main.ts"
+    "lint": "./node_modules/.bin/tslint src/sendToSingleAddr.ts"
   },
   "repository": {
     "type": "git",
@@ -16,7 +14,6 @@
   },
   "author": "",
   "license": "ISC",
-  "homepage": "https://bitbucket.org/glosfer/hycon.io.eth",
   "devDependencies": {
     "@types/mysql": "^2.15.3",
     "ts-node": "^5.0.1",
